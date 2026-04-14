@@ -14,7 +14,7 @@ namespace Tutorial6.Controllers
         {
 
         };
-        
+
         // GET api/rooms
         [HttpGet]
         public IActionResult Get()
@@ -33,10 +33,21 @@ namespace Tutorial6.Controllers
             return Ok(room);
         }
 
+        [Route("building/{building}")]
+        [HttpGet]
         public IActionResult GetFromBuilding([FromRoute] string building)
         {
             var room = rooms.Where(x => x.BuildingCode == building).ToList();
             if (room.Count() == 0) return NotFound();
+            return Ok(room);
+        }
+
+
+        [HttpGet]//does not work currently
+        public IActionResult GetFromQuery([FromQuery] int minCapacity, [FromQuery] bool hasProjector, [FromQuery] bool activeOnly)
+        {
+            var room = rooms.Where(x => x.Capacity >= minCapacity && x.HasProjector == hasProjector && x.IsActive == activeOnly).ToList();
+            if (room.Count() == 0) { return NotFound(); }
             return Ok(room);
         }
 
@@ -53,10 +64,33 @@ namespace Tutorial6.Controllers
                 HasProjector = dto.HasProjector,
                 IsActive = dto.IsActive
             };
-            
+
             rooms.Add(room);
-            
+
             return CreatedAtAction(nameof(GetById), new { id = room.Id }, room);
+        }
+
+        [HttpPut("{id:int}")]
+        public IActionResult Put([FromRoute] int id, [FromBody] CreateRoomDto dto) 
+        {
+            var room = rooms.Where(x => x.Id == id).FirstOrDefault();
+            if (room == null) { return NotFound(); }
+            room.Name = dto.Name;
+            room.BuildingCode = dto.BuildingCode;
+            room.Floor = dto.Floor;
+            room.Capacity = dto.Capacity;
+            room.HasProjector = dto.HasProjector;
+            room.IsActive = dto.IsActive;
+            return Ok(room);
+        }
+
+        [HttpDelete("{id:int}")]
+        public IActionResult Delete([FromRoute] int id)
+        {
+            var room = rooms.First(x => x.Id == id);
+            if (room == null) { return NotFound(); }
+            rooms.Remove(room);
+            return NoContent(); 
         }
     }
 }
