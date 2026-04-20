@@ -12,7 +12,7 @@ namespace Tutorial6.Controllers
     {
         public static List<Room> rooms = new List<Room>()
         {
-
+            
         };
 
         // GET api/rooms
